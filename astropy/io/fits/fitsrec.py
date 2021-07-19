@@ -1284,6 +1284,20 @@ class FITS_rec(np.recarray):
         if 'D' in format:
             output_field[:] = output_field.replace(b'E', b'D')
 
+    def tolist(self):
+        # In some cases, at least when some columns are VLF, np.recarray.tolist (i.e. of the base class) 
+        # can not interpret what is stored in data as list, and instead silently returns undersirable result.
+        # 
+        # For example in the case of VLF column it an array with variable row length and offsets.
+
+        column_lists = []
+        
+        for column in self.columns:
+            column_list = column.array.tolist()
+            column_lists.append(column_list)
+
+        return list(zip(*column_lists))
+
 
 def _get_recarray_field(array, key):
     """

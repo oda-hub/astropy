@@ -86,7 +86,7 @@ def test_JsonCustomEncoder():
     assert newd == tmpd
 
 
-def test_JsonCustomEncoder_VLF():
+def test_JsonCustomEncoder_FITS_rec_VLF():
     from astropy.io import fits
 
     col1 = fits.Column(
@@ -102,11 +102,14 @@ def test_JsonCustomEncoder_VLF():
     hdu = fits.BinTableHDU.from_columns([col1, col2])
     data = hdu.data
 
+    #what is converted by np.recarray.tolist is in fact descr_output, [3, 0], [2, 6] - n items and offset
+    assert json.dumps(np.recarray.tolist(data), cls=misc.JsonCustomEncoder) == '[[[3, 0], [101, 102]], [[2, 6], [111, 112]]]'
+    
     assert json.dumps(data['var'], cls=misc.JsonCustomEncoder) == '[[1, 2, 3], [11, 12]]'
     assert json.dumps(data['i2'], cls=misc.JsonCustomEncoder) == '[[101, 102], [111, 112]]'
-
-    assert json.dumps(data, cls=misc.JsonCustomEncoder) == '[[[1, 2, 3], [101, 102]], [[11, 12], [111, 112]]]'
     
+    assert json.dumps(data, cls=misc.JsonCustomEncoder) == '[[[1, 2, 3], [101, 102]], [[11, 12], [111, 112]]]'
+
 
 def test_set_locale():
     # First, test if the required locales are available
