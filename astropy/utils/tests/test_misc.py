@@ -86,6 +86,28 @@ def test_JsonCustomEncoder():
     assert newd == tmpd
 
 
+def test_JsonCustomEncoder_VLF():
+    from astropy.io import fits
+
+    col1 = fits.Column(
+        name='var', format='PI()',
+        array=np.array([[1,2,3], [11, 12]], dtype=np.object_))
+
+
+    col2 = fits.Column(
+        name='i2', format='2I',
+        array=np.array([[101,102], [111, 112]], dtype=np.object_))
+
+
+    hdu = fits.BinTableHDU.from_columns([col1, col2])
+    data = hdu.data
+
+    assert json.dumps(data['var'], cls=misc.JsonCustomEncoder) == '[[1, 2, 3], [11, 12]]'
+    assert json.dumps(data['i2'], cls=misc.JsonCustomEncoder) == '[[101, 102], [111, 112]]'
+
+    assert json.dumps(data, cls=misc.JsonCustomEncoder) == '[[[1, 2, 3], [101, 102]], [[11, 12], [111, 112]]]'
+    
+
 def test_set_locale():
     # First, test if the required locales are available
     current = locale.setlocale(locale.LC_ALL)
